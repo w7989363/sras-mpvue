@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/login/main",
+    "pages/register/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f5f5f5",
+    "navigationBarTitleText": "共享资源平台",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f5f5"
+  }
+}

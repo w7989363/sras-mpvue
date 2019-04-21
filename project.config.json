@@ -8,12 +8,14 @@
 		"newFeature": true
 	},
 	"miniprogramRoot": "dist/wx/",
+	"cloudfunctionRoot": "cloudfunctions/",
 	"compileType": "miniprogram",
 	"appid": "wxa635229f7f8be658",
 	"projectname": "sras-mpvue",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"libVersion": "2.2.5",
+	"cloudfunctionTemplateRoot": "cloudfunctionTemplate",
 	"condition": {
 		"search": {
 			"current": -1,

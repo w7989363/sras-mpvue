@@ -2,36 +2,26 @@
   <div class="page-container">
     <div class="form-container">
       <h2 class="header">用户登录</h2>
-      <div class="icon-input">
-        <img src="/static/images/user.png">
-        <input type="text" placeholder="请输入用户名" v-model="username" />
-      </div>
-      <div class="icon-input">
-        <img src="/static/images/pwd.png">
-        <input type="password" placeholder="请输入密码" v-model="password" />
-      </div>
+      <icon-input icon="user" placeholder="请输入用户名" v-model="username"></icon-input>
+      <icon-input icon="pwd" type="password" placeholder="请输入密码" v-model="password"></icon-input>
       <button class="btn" type="primary" @click="login">登 录</button>
       <div class="footer">
         <span class="footer-tip" @click="goToRegister">立即注册</span>
         <span class="footer-tip" @click="goToForget">忘记密码</span>
       </div>
-
     </div>
-    
   </div>
 </template>
 
 <script>
 import md5 from 'js-md5'
-import { constants } from 'crypto';
+import IconInput from '@/components/IconInput'
 
-const db = mpvue.cloud.database()
-const users = db.collection('user')
 export default {
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
     }
   },
   methods: {
@@ -52,44 +42,47 @@ export default {
         })
         return
       }
-      // 登录，失败则提示，成功则跳转到一级页面，存储一下用户名、用户类型
-      console.log(md5(this.password))
+      // 登录
       mpvue.showLoading({
         title: '',
         mask: true
       })
-      const res = await users.where({
-        username: this.username
-      }).get().catch(err => {
-        console.log('读取数据库出错', err)
+      const res = await mpvue.cloud.callFunction({
+        name: 'login',
+        data: {
+          username: this.username,
+          password: md5(this.password)
+        },
+      }).catch(err => {
+        console.log(err)
       })
-      if (res && res.data && res.data.length !== 0) {
-        const data = res.data[0]
-        if (data.username === this.username && data.password === md5(this.password)) {
-          // 登陆成功
-          // 存储用户名、用户类型
-          mpvue.setStorage({
-            key: 'user',
-            data: {
-              username: data.username,
-              userType: data.userType
-            }
-          })
-          // 跳转
-          mpvue.navigateTo({
-            url: '../search/main'
-          })
-          return
-        }
+      mpvue.hideLoading({})
+        // 登陆成功
+      if (res && res.result && result.status_code === 0) {
+        console.log('setStorage user:', res.result.data)
+        mpvue.setStorage({
+          key: 'user',
+          data: res.result.data
+        })
+        // 跳转
+        mpvue.redirectTo({
+          url: '../search/main'
+        })
+        return
       }
       // 登录失败
-      mpvue.hideLoading({})
       mpvue.showToast({
-        title: '用户名或密码错误',
+        title: res.result.err_msg,
         icon: 'none',
         duration: 2000
       })
+      
+      
+      
     }
+  },
+  components: {
+    IconInput
   }
 }
 </script>

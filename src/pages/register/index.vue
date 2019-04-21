@@ -2,22 +2,10 @@
   <div class="page-container">
     <div class="form-container">
       <h2 class="header">用户注册</h2>
-      <div class="icon-input">
-        <img src="/static/images/user.png">
-        <input type="text" placeholder="请输入用户名" v-model="username" />
-      </div>
-      <div class="icon-input">
-        <img src="/static/images/pwd.png">
-        <input type="password" placeholder="请输入密码" v-model="password" />
-      </div>
-      <div class="icon-input">
-        <img src="/static/images/pwd.png">
-        <input type="password" placeholder="请确认密码" v-model="confirmPassword" />
-      </div>
-      <div class="icon-input">
-        <img src="/static/images/tel.png">
-        <input type="text" placeholder="请输入手机号" v-model="tel" />
-      </div>
+      <icon-input icon="user" placeholder="请输入用户名" v-model="username"></icon-input>
+      <icon-input icon="pwd" type="password" placeholder="请输入密码" v-model="password"></icon-input>
+      <icon-input icon="pwd" type="password" placeholder="请确认密码" v-model="confirmPassword"></icon-input>
+      <icon-input icon="tel" placeholder="请输入手机号" v-model="tel"></icon-input>
       <div class="legend">请选择您的身份</div>
       <radio-group class="radio-group" @change="typeChange">
         <label class="type-radion">
@@ -28,18 +16,14 @@
         </label>
       </radio-group>
       <button class="btn" type="primary" @click="register">立即注册</button>
-
     </div>
-    
   </div>
 </template>
 
 <script>
 import md5 from 'js-md5'
-import { setTimeout } from 'timers';
+import IconInput from '@/components/IconInput'
 
-const db = mpvue.cloud.database()
-const users = db.collection('user')
 export default {
   data() {
     return {
@@ -79,60 +63,47 @@ export default {
         })
         return
       }
-      // 开始注册流程
       mpvue.showLoading({
         title: '',
         mask: true
       })
-      // 查询是否被占用
-      let res = await users.where({
-        username: this.username
-      }).get().catch(err => {
-        console.log('读取数据库出错', err)
-      })
-      console.log(res)
-      if (res && res.data && res.data.length !== 0) {
-        mpvue.hideLoading({})
-        mpvue.showToast({
-          title: '用户名重复',
-          icon: 'none',
-          duration: 2000
-        })
-        return
-      }
-      // 注册
-      res = await users.add({
+      const res = await mpvue.cloud.callFunction({
+        name: 'register',
         data: {
           username: this.username,
           password: md5(this.password),
           tel: this.tel,
           userType: this.userType
-        }
+        },
       }).catch(err => {
-        console.log('新增失败', err)
+        console.log(err)
       })
-      if (!res) {
-        mpvue.hideLoading({})
+      console.log(res)
+      mpvue.hideLoading({})
+      if (res && res.result && res.result.status_code === 0) {
         mpvue.showToast({
-          title: '注册失败',
-          icon: 'none',
+          title: '注册成功',
+          icon: 'success',
           duration: 2000
         })
+        // 返回登录页
+        setTimeout(() => {
+          mpvue.navigateBack({
+            delta: 1
+          })
+        }, 1000)
         return
       }
       mpvue.showToast({
-        title: '注册成功',
-        icon: 'success',
+        title: res.result.err_msg,
+        icon: 'none',
         duration: 2000
       })
-      // 注册成功，返回登录页
-      setTimeout(() => {
-        mpvue.navigateBack({
-          delta: 1
-        })
-      }, 1000)
       
     }
+  },
+  components: {
+    IconInput
   }
 }
 </script>

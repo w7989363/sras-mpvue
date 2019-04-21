@@ -68,25 +68,6 @@ export default {
     color: grey;
     margin-bottom: 20rpx;
   }
-  .icon-input {
-    width: 100%;
-    height: 80rpx;
-    display: flex;
-    align-items: center;
-    background-color: white;
-    margin-bottom: 30rpx;
-    & > img {
-      width: 32rpx;
-      height: 32rpx;
-      margin: 0 20rpx;
-    }
-    & > input {
-      height: 80rpx;
-      line-height: 80rpx;
-      font-size: 32rpx;
-      flex: 1;
-    }
-  }
   .radio-group {
     background-color: white;
     display: flex;

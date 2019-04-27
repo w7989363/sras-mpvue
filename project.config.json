@@ -25,13 +25,60 @@
 			"current": -1,
 			"list": []
 		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
 		"game": {
 			"currentL": -1,
 			"list": []
 		},
 		"miniprogram": {
-			"current": -1,
-			"list": []
+			"current": 5,
+			"list": [
+				{
+					"id": -1,
+					"name": "search",
+					"pathName": "pages/search/main",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": 1,
+					"name": "static",
+					"pathName": "pages/resourceList/main",
+					"query": "class1=static",
+					"scene": null
+				},
+				{
+					"id": 2,
+					"name": "mobile",
+					"pathName": "pages/resourceList/main",
+					"query": "class1=mobile",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "huiyishi",
+					"pathName": "pages/resourceDetail/main",
+					"query": "name=会议室(大)",
+					"scene": null
+				},
+				{
+					"id": 4,
+					"name": "user",
+					"pathName": "pages/user/main",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "shopcart",
+					"pathName": "pages/shopcart/main",
+					"query": "",
+					"scene": null
+				}
+			]
 		}
 	}
 }

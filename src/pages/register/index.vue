@@ -63,10 +63,7 @@ export default {
         })
         return
       }
-      mpvue.showLoading({
-        title: '',
-        mask: true
-      })
+      mpvue.showLoading({ mask: true })
       const res = await mpvue.cloud.callFunction({
         name: 'register',
         data: {

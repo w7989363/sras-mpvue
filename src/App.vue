@@ -33,16 +33,19 @@ export default {
 <style lang="less">
 .page-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   background-color: #f5f5f5;
-  height: 100vh;
+  min-height: 100vh;
   padding: 30rpx;
+  padding-top: 60rpx;
   box-sizing: border-box;
 }
 .form-container {
-  width: 65%;
+  width: 70%;
   display: flex;
   flex-direction: column;
+  // align-items: center;
   .header {
     text-align: center;
     margin-bottom: 30rpx;
@@ -53,6 +56,7 @@ export default {
     line-height: 80rpx;
     margin-bottom: 30rpx;
     font-size: 38rpx;
+    border-radius: 40rpx;
   }
   .footer {
     height: 80rpx;

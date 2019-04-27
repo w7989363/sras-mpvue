@@ -23,6 +23,7 @@
     "build": "node build/build.js wx"
   },
   "dependencies": {
+    "dayjs": "^1.8.13",
     "js-md5": "^0.7.3",
     "mpvue": "^2.0.0",
     "vuex": "^3.0.1"

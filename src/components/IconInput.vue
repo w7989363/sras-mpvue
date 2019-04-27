@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-input">
+  <div class="icon-input" :style="{borderRadius: circular ? '50rpx' : ''}">
     <img v-if="icon !== ''" class="icon" :src="iconMap[icon]" >
     <input
       class="input"
@@ -16,6 +16,7 @@ const iconMap = {
   pwd: '/static/images/pwd.png',
   tel: '/static/images/tel.png',
   success: '/static/images/success.png',
+  search: '/static/images/search.png',
   error: '/static/images/tel.png',
   my: '/static/images/my.png',
 }
@@ -36,6 +37,10 @@ export default {
     icon: {
       type: String,
       default: ''
+    },
+    circular: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

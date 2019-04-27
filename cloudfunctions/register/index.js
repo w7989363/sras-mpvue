@@ -6,7 +6,6 @@ const users = cloud.database().collection('user')
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-  const wxContext = cloud.getWXContext()
   const { username='', password='', tel, userType } = event
   if (username.trim().length === 0 || password.trim().length === 0 || !/^user|admin$/g.test(userType)) {
     return {
@@ -45,10 +44,4 @@ exports.main = async (event, context) => {
     status_code: 0,
     err_msg: ''
   }
-  // return {
-  //   event,
-  //   openid: wxContext.OPENID,
-  //   appid: wxContext.APPID,
-  //   unionid: wxContext.UNIONID,
-  // }
 }

@@ -1,7 +1,12 @@
 {
   "pages": [
     "pages/login/main",
-    "pages/register/main"
+    "pages/register/main",
+    "pages/search/main",
+    "pages/resourceList/main",
+    "pages/resourceDetail/main",
+    "pages/user/main",
+    "pages/shopcart/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

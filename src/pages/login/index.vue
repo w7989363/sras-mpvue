@@ -2,8 +2,8 @@
   <div class="page-container">
     <div class="form-container">
       <h2 class="header">用户登录</h2>
-      <icon-input icon="user" placeholder="请输入用户名" v-model="username"></icon-input>
-      <icon-input icon="pwd" type="password" placeholder="请输入密码" v-model="password"></icon-input>
+      <icon-input icon="user" circular placeholder="请输入用户名" v-model="username"></icon-input>
+      <icon-input icon="pwd" circular type="password" placeholder="请输入密码" v-model="password"></icon-input>
       <button class="btn" type="primary" @click="login">登 录</button>
       <div class="footer">
         <span class="footer-tip" @click="goToRegister">立即注册</span>
@@ -43,10 +43,7 @@ export default {
         return
       }
       // 登录
-      mpvue.showLoading({
-        title: '',
-        mask: true
-      })
+      mpvue.showLoading({ mask: true })
       const res = await mpvue.cloud.callFunction({
         name: 'login',
         data: {
@@ -57,8 +54,9 @@ export default {
         console.log(err)
       })
       mpvue.hideLoading({})
-        // 登陆成功
-      if (res && res.result && result.status_code === 0) {
+      console.log(res)
+      // 登陆成功
+      if (res && res.result && res.result.status_code === 0) {
         console.log('setStorage user:', res.result.data)
         mpvue.setStorage({
           key: 'user',

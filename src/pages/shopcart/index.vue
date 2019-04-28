@@ -28,14 +28,25 @@ export default {
   watch: {
   },
   onShow() {
-    this.shopcartList = mpvue.getStorageSync('shopcart')
+    this.refresh()
   },
   onPullDownRefresh() {
-    this.shopcartList = mpvue.getStorageSync('shopcart')
+    this.refresh()
     mpvue.stopPullDownRefresh()
   },
   methods: {
-    
+    refresh() {
+      this.shopcartList = mpvue.getStorageSync('shopcart')
+    },
+    clearShopcart() {
+      mpvue.removeStorageSync('shopcart')
+      this.refresh()
+    },
+    makeOrder() {
+      // TODO: 发送请求生成订单
+      // 在 resourceLog 每个日期生成一条记录，方便计算可预订的数量
+      // 在 orderLog 生成一条记录，用以订单列表和管理端评分、评分列表
+    }
   },
   components: {
     ShopcartItem

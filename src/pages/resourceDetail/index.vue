@@ -62,7 +62,7 @@
         </div>
       </div>
     </template>
-    <button class="btn" @click="addToShopcart" type="primary" :disabled="btnDisabled">加入订单</button>
+    <button class="btn" @click="addToShopcart" type="primary" :disabled="btnDisabled">{{btnName}}</button>
     <!-- <FixedUser /> -->
   </div>
 </template>
@@ -73,8 +73,9 @@ import dayjs from 'dayjs'
 export default {
   data() {
     return {
-      name: '',
+      btnName: '加入订单',
       detail: {},
+      name: '',
       startDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
       endDate: dayjs().add(1, 'day').format('YYYY-MM-DD'),
       number: 0,
@@ -117,7 +118,6 @@ export default {
         if (this.detail.number[date] < min) min = this.detail.number[date]
         date = dayjs(date).add(1, 'day').format('YYYY-MM-DD')
       }
-      console.log(min)
       return Array.from({length: min + 1}).map((v, i) => i)
     },
     btnDisabled() {
@@ -135,9 +135,11 @@ export default {
   mounted() {
     this.name = this.$root.$mp.query.name
     this.fetchDetail()
+    this.recoverData()
   },
   onPullDownRefresh() {
     this.fetchDetail()
+    this.recoverData()
   },
   methods: {
     async fetchDetail() {
@@ -169,20 +171,42 @@ export default {
       mpvue.stopPullDownRefresh()
       mpvue.hideLoading({})
     },
-    // showConfirm() {
-    //   mpvue.showModal({
-    //     title: '提示',
-    //     content: '确认添加至订单吗？添加后您可以通过“我 → 待确认订单”查看该订单',
-    //     success: (res) => {
-    //       if (res.confirm) {
-    //         this.addToShopcart()
-    //       }
-    //     }
-    //   })
-    // },
+    recoverData() {
+      const shopcart = mpvue.getStorageSync('shopcart') || {}
+      if (!shopcart[this.name]) {
+        this.btnName = '加入订单'
+        this.startDate = dayjs().add(1, 'day').format('YYYY-MM-DD')
+        this.endDate = dayjs().add(1, 'day').format('YYYY-MM-DD')
+        this.number = 0
+        this.auxiliaryDevices = {
+          projector: true,
+          mike: true,
+          audio: true,
+          board: true
+        }
+        this.livingMaterials = {
+          tea: true,
+          dessert: true,
+          fruit: true
+        }
+        this.stationery = {
+          paper: true,
+          pen: true
+        }
+      } else {
+        const data = shopcart[this.name]
+        this.btnName = '修改订单'
+        this.startDate = data.startDate
+        this.endDate = data.endDate
+        this.number = data.number
+        Object.assign(this.auxiliaryDevices, data.auxiliaryDevices)
+        Object.assign(this.livingMaterials, data.livingMaterials)
+        Object.assign(this.stationery, data.stationery)
+      }
+      
+    },
     addToShopcart() {
       mpvue.showLoading({ mask: true })
-      console.log(this.auxiliaryDevices)
       const data = {
         name: this.name,
         startDate: this.startDate,
@@ -190,9 +214,15 @@ export default {
         number: this.number,
       }
       if (this.otherShow) {
-        data.auxiliaryDevices = this.convert2array(this.auxiliaryDevices),
-        data.livingMaterials = this.convert2array(this.livingMaterials),
-        data.stationery = this.convert2array(this.stationery)
+        // data.auxiliaryDevices = this.convert2array(this.auxiliaryDevices),
+        // data.livingMaterials = this.convert2array(this.livingMaterials),
+        // data.stationery = this.convert2array(this.stationery)
+        data.auxiliaryDevices = { ...this.auxiliaryDevices }
+        data.livingMaterials = { ...this.livingMaterials }
+        data.stationery = { ...this.stationery }
+        delete data.auxiliaryDevices.__newReference
+        delete data.livingMaterials.__newReference
+        delete data.stationery.__newReference
       }
       let shopcart = mpvue.getStorageSync('shopcart') || {}
       shopcart[data.name] = data

@@ -6,7 +6,7 @@
     </div>
     <div class="btn-container">
       <button class="btn" @click="clearShopcart">一键取消</button>
-      <button class="btn" @click="makeOrder" type="primary" :disabled="btnDisabled">一键预约</button>
+      <button class="btn" @click="showModal" type="primary" :disabled="btnDisabled">一键预约</button>
     </div>
     <!-- <FixedUser /> -->
   </div>
@@ -14,9 +14,11 @@
 
 <script>
 import ShopcartItem from '@/components/ShopcartItem'
+
 export default {
   data() {
     return {
+      user: {},
       shopcartList: {}
     }
   },
@@ -37,15 +39,75 @@ export default {
   methods: {
     refresh() {
       this.shopcartList = mpvue.getStorageSync('shopcart')
+      this.user = mpvue.getStorageSync('user') || {}
+      if (!this.user.username) {
+        mpvue.showToast({
+          title: '登录已失效，请重新登录',
+          icon: 'none',
+          duration: 2000
+        })
+        setTimeout(() => this.logout(), 2000)
+      }
     },
     clearShopcart() {
       mpvue.removeStorageSync('shopcart')
       this.refresh()
     },
-    makeOrder() {
-      // TODO: 发送请求生成订单
-      // 在 resourceLog 每个日期生成一条记录，方便计算可预订的数量
-      // 在 orderLog 生成一条记录，用以订单列表和管理端评分、评分列表
+    showModal() {
+      mpvue.showModal({
+        title: '提示',
+        content: '一旦预约成功不能取消，且最终预约到的设备数量与信用有关，并可在“我的订单”中查看最终结果',
+        success: (res) => {
+          if (res.confirm) {
+            this.makeOrder()
+          }
+        }
+      })
+    },
+    async makeOrder() {
+      mpvue.showLoading({ mask: true })
+      await mpvue.cloud.callFunction({
+        name: 'makeOrder',
+        data: {
+          user: this.user.username,
+          orders: this.shopcartList
+        },
+      }).then(res =>{
+        console.log(res)
+        const { result } = res
+        if (result && result.status_code === 0) {
+          // 预约成功，跳转到我的订单
+          mpvue.redirectTo({
+            url: '../orderList/main'
+          })
+        } else if (result && result.err_orders) {
+          // 部分预约失败，应该返回失败的订单 err_orders
+          console.log(result)
+          // TODO: storage 中留下失败的 refresh
+          this.refresh()
+        } else {
+          // 其他错误
+          mpvue.showToast({
+            title: result.err_msg || '请求错误',
+            icon: 'none',
+            duration: 2000
+          })
+        }
+      }).catch(err => {
+        console.log(err)
+        mpvue.showToast({
+          title: '网络错误',
+          icon: 'none',
+          duration: 2000
+        })
+      })
+      mpvue.hideLoading({})
+    },
+    logout() {
+      mpvue.clearStorage({ key: 'user' })
+      mpvue.reLaunch({
+        url: '../login/main'
+      })
     }
   },
   components: {

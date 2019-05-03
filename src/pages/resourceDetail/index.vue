@@ -173,10 +173,11 @@ export default {
     },
     recoverData() {
       const shopcart = mpvue.getStorageSync('shopcart') || {}
+      const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
       if (!shopcart[this.name]) {
         this.btnName = '加入订单'
-        this.startDate = dayjs().add(1, 'day').format('YYYY-MM-DD')
-        this.endDate = dayjs().add(1, 'day').format('YYYY-MM-DD')
+        this.startDate = tomorrow
+        this.endDate = tomorrow
         this.number = 0
         this.auxiliaryDevices = {
           projector: true,
@@ -196,8 +197,8 @@ export default {
       } else {
         const data = shopcart[this.name]
         this.btnName = '修改订单'
-        this.startDate = data.startDate
-        this.endDate = data.endDate
+        this.startDate = data.startDate > tomorrow ? data.startDate : tomorrow
+        this.endDate = data.endDate > tomorrow ? data.endDate : tomorrow
         this.number = data.number
         Object.assign(this.auxiliaryDevices, data.auxiliaryDevices)
         Object.assign(this.livingMaterials, data.livingMaterials)
@@ -232,21 +233,21 @@ export default {
         success: () => {
           mpvue.hideLoading({})
           mpvue.showToast({
-            title: '添加成功',
-            duration: 2000,
+            title: this.btnName === '加入订单' ? '添加成功' : '修改成功',
+            duration: 1000,
             mask: true
           })
           setTimeout(() => {
             mpvue.navigateBack({
               delta: 1
             })
-          }, 2000)
+          }, 1000)
         },
         fail: () => {
           mpvue.hideLoading({})
           mpvue.showToast({
             icon: 'none',
-            title: '添加失败，请重试',
+            title: this.btnName === '加入订单' ? '添加失败，请重试' : '修改失败，请重试',
             duration: 2000,
             mask: true
           })

@@ -8,6 +8,8 @@ const resourceLog = cloud.database().collection('resourceLog')
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  // 服务器时区为 0 时区，使用东八区时间
+  const zone8time = dayjs().add(480 - dayjs().utcOffset(), 'minute')
   const ret = {}
   let detail = {}
   const { name } = event
@@ -22,14 +24,15 @@ exports.main = async (event, context) => {
     // 获取该 resource 从明天开始的所有租用记录
     return resourceLog.where({
       name: name,
-      date: _.gt(dayjs().format('YYY-MM-DD'))
+      date: _.gt(zone8time.format('YYYY-MM-DD'))
     }).get()
   })
   .then(res => {
+    console.log('resourceLog',res)
     // 格式化为 7 元数组，代表每天的剩余数量
     const map = {}
     for (let i = 1; i <= 7; i++) {
-      map[dayjs().add(i, 'day').format('YYYY-MM-DD')] = detail.number
+      map[zone8time.add(i, 'day').format('YYYY-MM-DD')] = detail.number
     }
     res.data.forEach(item => {
       const { date, number } = item

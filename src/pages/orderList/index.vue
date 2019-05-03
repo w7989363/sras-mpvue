@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <h2 class="header">待确认订单</h2>
+    <h2 class="header">我的订单</h2>
     <div class="form-container">
       <ShopcartItem v-for="item of shopcartList" :key="item.name" v-bind="item"></ShopcartItem>
     </div>

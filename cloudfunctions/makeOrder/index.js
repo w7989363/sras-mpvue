@@ -42,46 +42,76 @@ function canMakeOrder(order, resourceInfo) {
 
 async function makeOrderLog(user, order) {
   let res = true
+  let orderID
   const number = Math.round(order.number * user.score / 10)
   if (number === 0) return false
-  const dates = generateDates(order)
-  await Promise.all(dates.map(date => {
-    return resourceLogCollection.add({
-      data: {
-        user: user.username,
-        name: order.name,
-        date,
-        number
-      }
-    })
-  })).then(resArr => {
-    return orderLogCollection.add({
-      data: {
-        user: user.username,
-        resource: order.name,
-        detail: order,
-        status: 'rend'
-      }
-    })
-  }).catch(err => {
-    res = false
-    // 回滚
-    console.log('roll back', err)
-    dates.forEach(date => {
-      resourceLogCollection.where({
-        name: order.name,
-        date,
-        number
-      }).remove()
-    })
-    orderLogCollection.where({
+  await orderLogCollection.add({
+    data: {
       user: user.username,
       resource: order.name,
       detail: order,
       status: 'rend'
-    }).remove()
+    }
+  }).then(res => {
+    orderID = res._id
+    const dates = generateDates(order)
+    return Promise.all(dates.map(date => {
+      return resourceLogCollection.add({
+        data: {
+          user: user.username,
+          name: order.name,
+          date,
+          number,
+          orderID
+        }
+      })
+    }))
+  }).catch(err => {
+    res = false
+    // 回滚
+    console.log('roll back', err)
+    orderLogCollection.where({ _id: orderID }).remove()
+    resourceLogCollection.where({ orderID }).remove()
   })
   return res
+  // const dates = generateDates(order)
+  // await Promise.all(dates.map(date => {
+  //   return resourceLogCollection.add({
+  //     data: {
+  //       user: user.username,
+  //       name: order.name,
+  //       date,
+  //       number
+  //     }
+  //   })
+  // })).then(resArr => {
+  //   return orderLogCollection.add({
+  //     data: {
+  //       user: user.username,
+  //       resource: order.name,
+  //       detail: order,
+  //       status: 'rend'
+  //     }
+  //   })
+  // }).catch(err => {
+  //   res = false
+  //   // 回滚
+  //   console.log('roll back', err)
+  //   dates.forEach(date => {
+  //     resourceLogCollection.where({
+  //       name: order.name,
+  //       date,
+  //       number
+  //     }).remove()
+  //   })
+  //   orderLogCollection.where({
+  //     user: user.username,
+  //     resource: order.name,
+  //     detail: order,
+  //     status: 'rend'
+  //   }).remove()
+  // })
+  // return res
 }
 
 function generateDates(order) {

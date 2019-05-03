@@ -2,7 +2,13 @@
   <div class="page-container">
     <h2 class="header">待确认订单</h2>
     <div class="form-container">
-      <ShopcartItem v-for="item of shopcartList" :key="item.name" v-bind="item"></ShopcartItem>
+      <OrderItem
+        v-for="item of shopcartList"
+        :key="item.name"
+        v-bind="item"
+        :userType="user.userType"
+        @click="handleClick(item.name)">
+      </OrderItem>
     </div>
     <div class="btn-container">
       <button class="btn" @click="clearShopcart">一键取消</button>
@@ -13,8 +19,8 @@
 </template>
 
 <script>
-import ShopcartItem from '@/components/ShopcartItem'
-
+import OrderItem from '@/components/OrderItem'
+import { checkLogin } from '@/utils'
 export default {
   data() {
     return {
@@ -40,14 +46,13 @@ export default {
     refresh() {
       this.shopcartList = mpvue.getStorageSync('shopcart')
       this.user = mpvue.getStorageSync('user') || {}
-      if (!this.user.username) {
-        mpvue.showToast({
-          title: '登录已失效，请重新登录',
-          icon: 'none',
-          duration: 2000
-        })
-        setTimeout(() => this.logout(), 2000)
-      }
+      checkLogin(this.user)
+    },
+    handleClick(name) {
+      console.log('click', name)
+      mpvue.navigateTo({
+        url: `../resourceDetail/main?name=${name}`
+      })
     },
     clearShopcart() {
       mpvue.removeStorageSync('shopcart')
@@ -76,9 +81,10 @@ export default {
         console.log(res)
         const { result } = res
         if (result && result.status_code === 0) {
-          // 预约成功，跳转到我的订单
+          // 预约成功，清空 shopcart，跳转到我的订单
+          mpvue.removeStorage({ key: 'shopcart' })
           mpvue.redirectTo({
-            url: '../orderList/main'
+            url: '../orderList/main?orderStatus=rend'
           })
         } else if (result && result.status_code === 2) {
           // 部分预约失败，应该返回失败的订单 err_orders
@@ -120,15 +126,9 @@ export default {
       })
       mpvue.hideLoading({})
     },
-    logout() {
-      mpvue.clearStorage({ key: 'user' })
-      mpvue.reLaunch({
-        url: '../login/main'
-      })
-    }
   },
   components: {
-    ShopcartItem
+    OrderItem
   }
 }
 </script>

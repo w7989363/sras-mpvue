@@ -18,7 +18,26 @@ export function formatTime (date) {
   return `${t1} ${t2}`
 }
 
+export function logout() {
+  mpvue.clearStorage({})
+  mpvue.reLaunch({
+    url: '../login/main'
+  })
+}
+
+export function checkLogin(user) {
+  if (!user.username) {
+    mpvue.showToast({
+      title: '登录已失效，请重新登录',
+      icon: 'none',
+      duration: 1000
+    })
+    setTimeout(() => logout(), 1000)
+  }
+}
+
 export default {
   formatNumber,
-  formatTime
+  formatTime,
+  logout
 }

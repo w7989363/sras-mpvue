@@ -6,7 +6,9 @@
     "pages/resourceList/main",
     "pages/resourceDetail/main",
     "pages/user/main",
-    "pages/shopcart/main"
+    "pages/shopcart/main",
+    "pages/orderList/main",
+    "pages/orderDetail/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

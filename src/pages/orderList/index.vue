@@ -1,134 +1,115 @@
 <template>
   <div class="page-container">
-    <h2 class="header">我的订单</h2>
+    <h2 class="header">{{pageTitle}}</h2>
     <div class="form-container">
-      <ShopcartItem v-for="item of shopcartList" :key="item.name" v-bind="item"></ShopcartItem>
+      <OrderItem
+        v-for="item of orderList"
+        :key="item._id"
+        v-bind="item.detail"
+        :userType="user.userType"
+        @click="handleClick(item)">
+      </OrderItem>
+      <div class="tips" v-if="tips">{{tips}}</div>
     </div>
-    <div class="btn-container">
-      <button class="btn" @click="clearShopcart">一键取消</button>
-      <button class="btn" @click="showModal" type="primary" :disabled="btnDisabled">一键预约</button>
-    </div>
-    <!-- <FixedUser /> -->
   </div>
 </template>
 
 <script>
-import ShopcartItem from '@/components/ShopcartItem'
-
+import OrderItem from '@/components/OrderItem'
+import { checkLogin } from '@/utils'
 export default {
   data() {
     return {
       user: {},
-      shopcartList: {}
+      orderList: [],
+      orderStatus: 'rend'
     }
   },
   computed: {
-    btnDisabled() {
-      return Object.keys(this.shopcartList).length === 0
-    }
-  },
-  watch: {
-  },
-  onShow() {
-    this.refresh()
-  },
-  onPullDownRefresh() {
-    this.refresh()
-    mpvue.stopPullDownRefresh()
-  },
-  methods: {
-    refresh() {
-      this.shopcartList = mpvue.getStorageSync('shopcart')
-      this.user = mpvue.getStorageSync('user') || {}
-      if (!this.user.username) {
-        mpvue.showToast({
-          title: '登录已失效，请重新登录',
-          icon: 'none',
-          duration: 2000
-        })
-        setTimeout(() => this.logout(), 2000)
+    pageTitle() {
+      if (!this.user || !this.user.username) {
+        return '我的订单'
+      }
+      if (this.user.userType === 'user') {
+        // 普通用户界面
+        return this.orderStatus === 'rend' ? '我的订单' : '租赁记录'
+      } else {
+        // 管理员界面
+        return this.orderStatus === 'rend' ? '待打分订单' : '打分记录'
       }
     },
-    clearShopcart() {
-      mpvue.removeStorageSync('shopcart')
-      this.refresh()
+    skip() {
+      return this.orderList.length
     },
-    showModal() {
-      mpvue.showModal({
-        title: '提示',
-        content: '一旦预约成功不能取消，且最终预约到的设备数量与信用有关，并可在“我的订单”中查看最终结果',
-        success: (res) => {
-          if (res.confirm) {
-            this.makeOrder()
-          }
-        }
-      })
-    },
-    async makeOrder() {
+    tips() {
+      const tip = '温馨提示：请用户按时间准时到达，如有迟到晚退等现象会影响信用哦！'
+      return this.pageTitle === '我的订单' ? tip : ''
+    }
+  },
+  mounted() {
+    
+  },
+  onShow() {
+    this.orderList = []
+    this.orderStatus = this.$root.$mp.query.orderStatus || 'rend'
+    this.user = mpvue.getStorageSync('user') || {}
+    checkLogin(this.user)
+    this.fetchData()
+  },
+  // onPullDownRefresh() {
+  //   this.fetchData()
+  //   mpvue.stopPullDownRefresh()
+  // },
+  methods: {
+    async fetchData() {
+      console.log('fetch 被调用')
       mpvue.showLoading({ mask: true })
       await mpvue.cloud.callFunction({
-        name: 'makeOrder',
+        name: 'orderList',
         data: {
           user: this.user.username,
-          orders: this.shopcartList
+          userType: this.user.userType,
+          orderStatus: this.orderStatus,
+          skip: this.skip
         },
-      }).then(res =>{
+      }).then(res => {
         console.log(res)
         const { result } = res
-        if (result && result.status_code === 0) {
-          // 预约成功，跳转到我的订单
-          mpvue.redirectTo({
-            url: '../orderList/main'
-          })
-        } else if (result && result.status_code === 2) {
-          // 部分预约失败，应该返回失败的订单 err_orders
-          console.log(result)
-          // storage 中留下失败的 然后 refresh
-          const { err_orders } = result
-          const shopcart = {}
-          err_orders.forEach(resourceName => {
-            shopcart[resourceName] = this.shopcartList[resourceName]
-          })
-          mpvue.setStorage({
-            key: 'shopcart',
-            data: shopcart,
-            success: () => {
-              mpvue.showToast({
-                title: '部分下单失败',
-                icon: 'none',
-                duration: 1000,
-                mask: true
-              })
-              setTimeout(() => this.refresh(), 1000)
-            }
-          })
-        } else {
-          // 其他错误
-          mpvue.showToast({
-            title: result.err_msg || '请求错误',
-            icon: 'none',
-            duration: 2000
-          })
+        if (result && result.status_code !== 0) {
+          throw result.err_msg
+        }
+        if (result && result.data) {
+          if (result.data.length === 0) {
+            // 没有更多数据了
+            mpvue.showToast({
+              title: '没有更多了...',
+              icon: 'none',
+              duration: 1000
+            })
+          } else {
+            // 反回了新数据
+            this.orderList = this.orderList.concat(result.data)
+          }
         }
       }).catch(err => {
         console.log(err)
         mpvue.showToast({
-          title: '网络错误',
+          title: err || '网络错误',
           icon: 'none',
           duration: 2000
         })
       })
       mpvue.hideLoading({})
     },
-    logout() {
-      mpvue.clearStorage({ key: 'user' })
-      mpvue.reLaunch({
-        url: '../login/main'
+    handleClick(order) {
+      console.log(order)
+      mpvue.navigateTo({
+        url: `../orderDetail/main?order=${JSON.stringify(order)}`
       })
-    }
+    },
   },
   components: {
-    ShopcartItem
+    OrderItem
   }
 }
 </script>
@@ -144,24 +125,11 @@ export default {
   .form-container {
     width: 100%;
     flex: 1 1;
-  }
-  .btn-container {
-    width: 100%;
-    flex: 0 0 140rpx;
-    line-height: 140rpx;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid #f5f5f5;
-    background-color: white;
-    .btn {
-      width: 40%;
-      height: 100rpx;
-      line-height: 100rpx;
-    }
-    .btn:first-child {
-      background-color: #dda350;
-      color: white;
+    .tips {
+      color: grey;
+      font-size: 12px;
+      padding: 0 30rpx;
+      margin-top: 100rpx;
     }
   }
   

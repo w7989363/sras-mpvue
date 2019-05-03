@@ -6,20 +6,20 @@
     <p v-if="user.userType === 'user'" class="user-info">积分：{{user.score}}</p>
     <div v-if="user.userType === 'user'" class="form-container">
       <button class="btn" type="primary" @click="myShopcart">待确认订单</button>
-      <button class="btn" type="primary" @click="myOrder">我的订单</button>
-      <button class="btn" type="primary" @click="myLog">租赁记录</button>
-      <button class="btn" type="warn" @click="logout">注销</button>
+      <button class="btn" type="primary" @click="myOrder('rend')">我的订单</button>
+      <button class="btn" type="primary" @click="myOrder('over')">租赁记录</button>
+      <button class="btn warn" @click="logout">注销</button>
     </div>
     <div v-else>
-      <button class="btn" type="primary" @click="myOrder">待打分订单</button>
-      <button class="btn" type="primary" @click="myLog">打分记录</button>
-      <button class="btn" type="warn" @click="logout">注销</button>
+      <button class="btn" type="primary" @click="myOrder('rend')">待打分订单</button>
+      <button class="btn" type="primary" @click="myOrder('over')">打分记录</button>
+      <button class="btn warn" @click="logout">注销</button>
     </div>
   </div>
 </template>
 
 <script>
-
+import { logout, checkLogin } from '@/utils'
 export default {
   data() {
     return {
@@ -27,17 +27,8 @@ export default {
     }
   },
   mounted() {
-    try {
-      const user = mpvue.getStorageSync('user')
-      if (user && user.username) {
-        console.log(user)
-        this.user = user
-      } else {
-        this.logout()
-      }
-    } catch (e) {
-      console.log(e)
-    }
+    this.user = mpvue.getStorageSync('user') || {}
+    checkLogin(this.user)
   },
   methods: {
     myShopcart() {
@@ -45,21 +36,13 @@ export default {
         url: '../shopcart/main'
       })
     },
-    myOrder() {
+    myOrder(orderStatus) {
       mpvue.navigateTo({
-        url: '../orderList/main'
-      })
-    },
-    myLog() {
-      mpvue.navigateTo({
-        url: '../logList/main'
+        url: `../orderList/main?orderStatus=${orderStatus}`
       })
     },
     logout() {
-      mpvue.clearStorage({ key: 'user' })
-      mpvue.reLaunch({
-        url: '../login/main'
-      })
+      logout()
     }
   },
   components: {
@@ -82,5 +65,9 @@ export default {
 }
 .btn {
   margin-bottom: 40rpx;
+}
+.warn {
+  background-color: #dda350;
+  color: white;
 }
 </style>

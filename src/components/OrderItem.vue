@@ -1,10 +1,10 @@
 <template>
-  <div class="shopcart-container" @click="resourceDetail">
+  <div class="order-container" @click="$emit('click')">
     <div class="name">{{name}}</div>
     <div class="number">{{number}}</div>
     <div class="date">
-      <div class="tip">租用日期</div>
-      <div class="tip">{{start}}~{{end}}</div>
+      <div class="tip">{{msg}}</div>
+      <div class="tip">{{start}}-{{end}}</div>
     </div>
     <!-- <div class="number" :style="{color: number === '可租' ? 'green' : 'red'}">{{number}}</div> -->
   </div>
@@ -38,12 +38,16 @@ export default {
       type: String,
       default: '',
       required: true
+    },
+    userType: {
+      type: String,
+      default: 'user',
+      required: true
+    },
+    user: {
+      type: String,
+      default: ''
     }
-    // number: {
-    //   type: Array,
-    //   default: () => [],
-    //   required: true
-    // }
   },
   computed: {
     start() {
@@ -51,20 +55,16 @@ export default {
     },
     end() {
       return dayjs(this.endDate).format('YYYY.MM.DD')
-    }
-  },
-  methods: {
-    resourceDetail() {
-      mpvue.navigateTo({
-        url: `../resourceDetail/main?name=${this.name}`
-      })
+    },
+    msg() {
+      return this.userType === 'user' ? '租用日期' : this.user
     }
   }
 }
 </script>
 
 <style lang="less">
-.shopcart-container {
+.order-container {
   font-size: 16px;
   display: flex;
   justify-content: space-between;

@@ -276,6 +276,7 @@ export default {
     width: 100%;
     .form-item {
       margin-bottom: 30rpx;
+      box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
       .label {
         color: grey;
         font-size: 14px;

@@ -10,7 +10,7 @@
       <button class="btn" type="primary" @click="myOrder('over')">租赁记录</button>
       <button class="btn warn" @click="logout">注销</button>
     </div>
-    <div v-else>
+    <div v-else class="form-container">
       <button class="btn" type="primary" @click="myOrder('rend')">待打分订单</button>
       <button class="btn" type="primary" @click="myOrder('over')">打分记录</button>
       <button class="btn warn" @click="logout">注销</button>

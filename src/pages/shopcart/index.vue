@@ -1,14 +1,16 @@
 <template>
   <div class="page-container">
-    <h2 class="header">待确认订单</h2>
-    <div class="form-container">
-      <OrderItem
-        v-for="item of shopcartList"
-        :key="item.name"
-        v-bind="item"
-        :userType="user.userType"
-        @click="handleClick(item.name)">
-      </OrderItem>
+    <div class="scroll-wrapper">
+      <h2 class="header">待确认订单</h2>
+      <div class="form-container">
+        <OrderItem
+          v-for="item of shopcartList"
+          :key="item.name"
+          v-bind="item"
+          :user="user"
+          @click="handleClick(item.name)">
+        </OrderItem>
+      </div>
     </div>
     <div class="btn-container">
       <button class="btn" @click="clearShopcart">一键取消</button>
@@ -33,7 +35,11 @@ export default {
       return Object.keys(this.shopcartList).length === 0
     }
   },
-  watch: {
+  mounted() {
+    this.shopcartList = {}
+    this.user = mpvue.getStorageSync('user') || {}
+    checkLogin(this.user)
+    this.refresh()
   },
   onShow() {
     this.refresh()
@@ -45,8 +51,6 @@ export default {
   methods: {
     refresh() {
       this.shopcartList = mpvue.getStorageSync('shopcart')
-      this.user = mpvue.getStorageSync('user') || {}
-      checkLogin(this.user)
     },
     handleClick(name) {
       console.log('click', name)
@@ -137,22 +141,27 @@ export default {
 .page-container {
   padding-left: 0;
   padding: 0;
-  .header {
-    margin-bottom: 30rpx;
-    flex: 0 0;
-  }
-  .form-container {
-    width: 100%;
+  max-height: 100vh;
+  .scroll-wrapper {
     flex: 1 1;
+    width: 100%;
+    overflow: scroll;
+    .header {
+      margin-bottom: 30rpx;
+      text-align: center;
+    }
+    .form-container {
+      width: 100%;
+    }
   }
+  
   .btn-container {
     width: 100%;
     flex: 0 0 140rpx;
-    line-height: 140rpx;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border-top: 1px solid #f5f5f5;
+    border-top: 1px solid #e7e7e7;
     background-color: white;
     .btn {
       width: 40%;

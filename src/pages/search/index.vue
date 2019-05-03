@@ -1,5 +1,6 @@
 <template>
   <div class="page-container">
+    <h2 class="header">搜索</h2>
     <div class="form-container">
       <icon-input icon="search" circular placeholder="搜索" v-model="searchText"></icon-input>
       <button class="btn" type="primary" @click="resourceList('static')">固定设备</button>
@@ -34,9 +35,8 @@ export default {
 </script>
 
 <style lang="less">
-.form-container {
-  // width: 75%;
-  // margin-top: 200rpx;
+.header {
+  margin-bottom: 50rpx;
 }
 .btn {
   margin-top: 30rpx;

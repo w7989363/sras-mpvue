@@ -1,0 +1,8 @@
+[
+  {
+    "name": "clearCollection",
+    "value": {
+      "collection": "user"
+    }
+  }
+]

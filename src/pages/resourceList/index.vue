@@ -2,7 +2,12 @@
   <div class="page-container">
     <h2 class="header">{{class1 === 'static' ? '固定设备' : '移动设备'}}</h2>
     <div class="form-container">
-      <ResourceItem v-for="resource in resourceList" :key="resource.name" v-bind="resource"></ResourceItem>
+      <ResourceItem
+        v-for="resource in resourceList"
+        :key="resource.name"
+        v-bind="resource"
+        @click="handleClick(resource)">
+      </ResourceItem>
     </div>
     <FixedUser />
   </div>
@@ -11,21 +16,27 @@
 <script>
 import FixedUser from '@/components/FixedUser'
 import ResourceItem from '@/components/ResourceItem'
+import { checkLogin } from '@/utils'
 export default {
   data() {
     return {
+      user: {},
       class1: '',
       search: '',
       resourceList: [],
     }
   },
   mounted() {
+    this.resourceList = []
     this.class1 = this.$root.$mp.query.class1
     this.search = this.$root.$mp.query.search
+    this.user = mpvue.getStorageSync('user') || {}
+    checkLogin(this.user)
     this.fetchList()
   },
-  onPullDownRefresh() {
-    this.fetchList()
+  async onPullDownRefresh() {
+    await this.fetchList()
+    mpvue.stopPullDownRefresh()
   },
   methods: {
     async fetchList() {
@@ -56,8 +67,19 @@ export default {
           duration: 2000
         })
       })
-      mpvue.stopPullDownRefresh()
       mpvue.hideLoading({})
+    },
+    handleClick(resource) {
+      if (this.user.userType === 'user') {
+        mpvue.navigateTo({
+          url: `../resourceDetail/main?name=${resource.name}`
+        })
+      }
+      if (this.user.userType === 'admin') {
+        mpvue.navigateTo({
+          url: `../orderList/main?name=${resource.name}&orderStatus=rend`
+        })
+      }
     }
   },
   components: {

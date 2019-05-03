@@ -24,6 +24,10 @@ export default {
       password: '',
     }
   },
+  mounted() {
+    this.username = ''
+    this.password = ''
+  },
   methods: {
     goToRegister() {
       mpvue.navigateTo({

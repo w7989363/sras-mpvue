@@ -39,12 +39,17 @@ export default {
       default: '',
       required: true
     },
-    userType: {
-      type: String,
-      default: 'user',
+    user: {
+      type: Object,
+      default: () => {
+        return {
+          username: '',
+          userType: 'user'
+        }
+      },
       required: true
     },
-    user: {
+    orderUser: {
       type: String,
       default: ''
     }
@@ -57,7 +62,7 @@ export default {
       return dayjs(this.endDate).format('YYYY.MM.DD')
     },
     msg() {
-      return this.userType === 'user' ? '租用日期' : this.user
+      return this.user.userType === 'user' ? '租用日期' : this.orderUser
     }
   }
 }
@@ -72,6 +77,7 @@ export default {
   height: 100rpx;
   margin-bottom: 30rpx;
   padding: 0 20rpx;
+  box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
   // border-radius: 20rpx;
   .name, .number, .date {
     line-height: 100rpx;

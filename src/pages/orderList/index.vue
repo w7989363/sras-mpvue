@@ -1,16 +1,22 @@
 <template>
   <div class="page-container">
-    <h2 class="header">{{pageTitle}}</h2>
-    <div class="form-container">
-      <OrderItem
-        v-for="item of orderList"
-        :key="item._id"
-        v-bind="item.detail"
-        :userType="user.userType"
-        @click="handleClick(item)">
-      </OrderItem>
-      <div class="tips" v-if="tips">{{tips}}</div>
-    </div>
+    <scroll-view
+      class="scroll-wrapper"
+      :scroll-y="true"
+      @scrolltolower="loadMore">
+      <h2 class="header">{{pageTitle}}</h2>
+      <div class="form-container">
+        <OrderItem
+          v-for="item of filteredList"
+          :key="item._id"
+          v-bind="item.detail"
+          :user="user"
+          :orderUser="item.user"
+          @click="handleClick(item)">
+        </OrderItem>
+        <div class="tips" v-if="tips">{{tips}}</div>
+      </div>
+    </scroll-view>
   </div>
 </template>
 
@@ -20,13 +26,16 @@ import { checkLogin } from '@/utils'
 export default {
   data() {
     return {
+      name: '',
       user: {},
       orderList: [],
-      orderStatus: 'rend'
+      orderStatus: 'rend',
+      noMore: false
     }
   },
   computed: {
     pageTitle() {
+      if (this.name !== '') return this.name
       if (!this.user || !this.user.username) {
         return '我的订单'
       }
@@ -38,6 +47,10 @@ export default {
         return this.orderStatus === 'rend' ? '待打分订单' : '打分记录'
       }
     },
+    filteredList() {
+      if (this.name === '') return this.orderList
+      return this.orderList.filter(order => order.resource === this.name)
+    },
     skip() {
       return this.orderList.length
     },
@@ -47,22 +60,24 @@ export default {
     }
   },
   mounted() {
-    
-  },
-  onShow() {
-    this.orderList = []
+    this.noMore = false
+    this.name = this.$root.$mp.query.name || ''
     this.orderStatus = this.$root.$mp.query.orderStatus || 'rend'
     this.user = mpvue.getStorageSync('user') || {}
     checkLogin(this.user)
-    this.fetchData()
+    this.fetchData(true)
   },
-  // onPullDownRefresh() {
-  //   this.fetchData()
-  //   mpvue.stopPullDownRefresh()
-  // },
+  async onPullDownRefresh() {
+    await this.fetchData(true)
+    mpvue.stopPullDownRefresh()
+  },
   methods: {
-    async fetchData() {
-      console.log('fetch 被调用')
+    loadMore() {
+      if (this.noMore) return
+      this.fetchData()
+    },
+    async fetchData(refresh) {
+      if (refresh) this.orderList = []
       mpvue.showLoading({ mask: true })
       await mpvue.cloud.callFunction({
         name: 'orderList',
@@ -81,6 +96,7 @@ export default {
         if (result && result.data) {
           if (result.data.length === 0) {
             // 没有更多数据了
+            this.noMore = true
             mpvue.showToast({
               title: '没有更多了...',
               icon: 'none',
@@ -88,7 +104,7 @@ export default {
             })
           } else {
             // 反回了新数据
-            this.orderList = this.orderList.concat(result.data)
+            this.orderList.push(...result.data)
           }
         }
       }).catch(err => {
@@ -118,8 +134,12 @@ export default {
 .page-container {
   padding-left: 0;
   padding: 0;
+  .scroll-wrapper {
+    height: 100vh;
+  }
   .header {
     margin-bottom: 30rpx;
+    text-align: center;
     flex: 0 0;
   }
   .form-container {
@@ -129,7 +149,7 @@ export default {
       color: grey;
       font-size: 12px;
       padding: 0 30rpx;
-      margin-top: 100rpx;
+      margin: 100rpx 0 50rpx;
     }
   }
   

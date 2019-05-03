@@ -1,5 +1,5 @@
 <template>
-  <div class="resource-container" @click="resourceDetail">
+  <div class="resource-container" @click="$emit('click')">
     <div class="name">{{name}}</div>
     <div class="status">{{number}}</div>
     <!-- <div class="status" :style="{color: status === '可租' ? 'green' : 'red'}">{{status}}</div> -->
@@ -24,24 +24,10 @@ export default {
       default: 0,
       required: true
     }
-    // number: {
-    //   type: Array,
-    //   default: () => [],
-    //   required: true
-    // }
   },
   computed: {
-    // status() {
-    //   if (this.number && this.number.length === 0) return ''
-    //   return this.number.some(n => n > 0) ? '可租' : '已租完'
-    // }
   },
   methods: {
-    resourceDetail() {
-      mpvue.navigateTo({
-        url: `../resourceDetail/main?name=${this.name}`
-      })
-    }
   }
 }
 </script>
@@ -55,6 +41,7 @@ export default {
   margin-bottom: 30rpx;
   padding: 0 20rpx;
   border-radius: 20rpx;
+  box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
   .status {
     flex: 0 0 3em;
     text-align: right;

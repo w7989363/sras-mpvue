@@ -4,7 +4,6 @@ const dayjs = require('dayjs')
 
 cloud.init()
 const userCollection = cloud.database().collection('user')
-// const resourceCollection = cloud.database().collection('resource')
 const resourceLogCollection = cloud.database().collection('resourceLog')
 const orderLogCollection = cloud.database().collection('orderLog')
 

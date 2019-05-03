@@ -14,7 +14,7 @@ exports.main = async (event, context) => {
   if (res && res.data && res.data.length !== 0) {
     const data = res.data[0]
     if (data.username === username && data.password === password) {
-      const { _id, password, ...rest } = data
+      const { password, ...rest } = data
       console.log(rest)
       return {
         status_code: 0,

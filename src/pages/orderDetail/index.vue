@@ -30,20 +30,43 @@
         <div class="label">订单状态</div>
         <div class="content">{{order.status === 'rend' ? '租赁中' : '已归还'}}</div>
       </div>
-      <div class="form-item" v-if="order.admin">
-        <div class="label">管理员</div>
-        <div class="content">{{order.admin}}</div>
-      </div>
-      <div class="form-item" v-if="order.score">
-        <div class="label">评分</div>
-        <div class="content">{{order.score}}</div>
-      </div>
-      <div class="form-item" v-if="order.comment">
-        <div class="label">备注</div>
-        <div class="content">{{order.comment}}</div>
-      </div>
+      <template v-if="user.userType === 'user'">
+        <div class="form-item" v-if="order.admin">
+          <div class="label">管理员</div>
+          <div class="content">{{order.admin}}</div>
+        </div>
+        <div class="form-item" v-if="order.score">
+          <div class="label">评分(0~10)</div>
+          <div class="content">{{order.score}}</div>
+        </div>
+        <div class="form-item" v-if="order.comment">
+          <div class="label">备注</div>
+          <div class="content">{{order.comment}}</div>
+        </div>
+      </template>
+      <template v-if="user.userType === 'admin'">
+        <div class="form-item" v-if="order.admin">
+          <div class="label">管理员</div>
+          <div class="content">{{order.admin}}</div>
+        </div>
+        <div class="form-item">
+          <div class="label">评分(0~10)</div>
+          <div class="content" v-if="order.score">{{order.score}}</div>
+          <div class="content" v-else>
+            <input class="score-input" type="number" v-model="score" />
+          </div>
+        </div>
+        <div class="form-item">
+          <div class="label">备注</div>
+          <div class="content" v-if="order.comment">{{order.comment}}</div>
+          <div class="content" v-else>
+            <textarea class="comment-input" v-model="comment" placeholder="评分理由" />
+          </div>
+        </div>
+      </template>
+      
     </div>
-    <button v-if="btnShow" class="btn" @click="giveBack" type="primary">确认归还</button>
+    <button v-if="btnShow" class="btn" @click="giveBack" type="primary" :disabled="btnDisabled">确认归还</button>
   </div>
 </template>
 
@@ -99,17 +122,54 @@ export default {
       return this.user.userType === 'admin' && this.order.status === 'rend'
     },
     btnDisabled() {
-      return !this.score
+      if (this.score === '') return true
+      const score = parseInt(this.score)
+      if (score >= 0 && score <= 10) return false
+      return true
     }
   },
   mounted() {
+    this.score = ''
+    this.comment = ''
     this.order = JSON.parse(this.$root.$mp.query.order || '')
     this.user = mpvue.getStorageSync('user') || {}
     checkLogin(this.user)
   },
   methods: {
-    giveBack() {
-
+    async giveBack() {
+      mpvue.showLoading({ mask: true })
+      await mpvue.cloud.callFunction({
+        name: 'giveBack',
+        data: {
+          user: this.order.user,
+          admin: this.user.username,
+          score: this.score,
+          comment: this.comment,
+          orderID: this.order._id
+        },
+      }).then(res => {
+        if (res.result.status_code === 0) {
+          mpvue.showToast({
+            title: '归还成功',
+            icon: 'none',
+            duration: 1000
+          })
+          setTimeout(() => {
+            mpvue.navigateBack({
+              delta: 1
+            })
+          }, 1000)
+        } else {
+          throw res.result.err_msg
+        }
+      }).catch(err => {
+        mpvue.showToast({
+          title: err || '网络错误',
+          icon: 'none',
+          duration: 2000
+        })
+      })
+      mpvue.hideLoading()
     }
   },
   components: {
@@ -130,6 +190,7 @@ export default {
     width: 100%;
     .form-item {
       margin-bottom: 30rpx;
+      box-sizing: border-box;
       .label {
         color: grey;
         font-size: 14px;
@@ -138,11 +199,24 @@ export default {
       }
       .content {
         font-size: 16px;
-        color: black;
+        color: grey;
         min-height: 100rpx;
         line-height: 100rpx;
         background-color: white;
         padding: 0 30rpx;
+        box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
+      }
+      .score-input {
+        height: 100rpx;
+        line-height: 100rpx;
+        color: black;
+      }
+      .comment-input {
+        width: 100%;
+        height: 300rpx;
+        line-height: 40rpx;
+        padding: 20rpx 0;
+        color: black;
       }
     }
   }

@@ -34,6 +34,13 @@ export default {
       userType: 'user'
     }
   },
+  mounted() {
+    this.username = ''
+    this.password = ''
+    this.confirmPassword = ''
+    this.tel = ''
+    this.userType = 'user'
+  },
   methods: {
     typeChange(e) {
       this.userType = e.target.value

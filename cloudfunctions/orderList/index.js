@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
   userType === 'user' && await orderLogCollection.where({
     user: user,
     status: orderStatus
-  }).skip(skip).get().then(res => {
+  }).skip(skip).limit(20).get().then(res => {
     console.log('user', res)
     orderList = res.data || []
   }).catch(err => {
@@ -29,7 +29,7 @@ exports.main = async (event, context) => {
   userType === 'admin' && await orderLogCollection.where({
     status: orderStatus,
     admin: orderStatus === 'rend' ? undefined : user
-  }).skip(skip).get().then(res => {
+  }).skip(skip).limit(20).get().then(res => {
     console.log('admin', res)
     orderList = res.data || []
   }).catch(err => {

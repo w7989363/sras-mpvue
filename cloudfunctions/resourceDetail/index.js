@@ -32,7 +32,7 @@ exports.main = async (event, context) => {
     // 格式化为 7 元数组，代表每天的剩余数量
     const map = {}
     for (let i = 1; i <= 7; i++) {
-      map[zone8time.add(i, 'day').format('YYYY-MM-DD')] = detail.number
+      map[zone8time.add(i, 'day').format('YYYY-MM-DD')] = parseInt(detail.number)
     }
     res.data.forEach(item => {
       const { date, number } = item

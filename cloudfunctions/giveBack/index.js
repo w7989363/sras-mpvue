@@ -18,7 +18,7 @@ exports.main = async (event, context) => {
   await orderLogCollection.doc(orderID).update({
     data: {
       status: 'over',
-      score,
+      score: parseInt(score),
       admin,
       comment: comment || ''
     }
@@ -33,7 +33,7 @@ exports.main = async (event, context) => {
       ret.err_msg = 'user err'
     }
     return userCollection.doc(data[0]._id).update({
-      data: { score }
+      data: { score: parseInt(score) }
     })
   })
   .then(res => {

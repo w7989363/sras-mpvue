@@ -39,10 +39,11 @@ function canMakeOrder(order, resourceInfo) {
   return true
 }
 
+// 订单记录
 async function makeOrderLog(user, order) {
   let res = true
   let orderID
-  const number = Math.round(order.number * user.score / 10)
+  const number = Math.round(parseInt(order.number) * parseInt(user.score) / 10)
   if (number === 0) return false
   await orderLogCollection.add({
     data: {
@@ -69,50 +70,18 @@ async function makeOrderLog(user, order) {
     res = false
     // 回滚
     console.log('roll back', err)
-    orderLogCollection.where({ _id: orderID }).remove()
-    resourceLogCollection.where({ orderID }).remove()
+    orderLogCollection.doc(orderID).remove()
+    resourceLogCollection.where({ orderID }).get().then(res => {
+      const { data } = res
+      data.forEach(item => {
+        resourceLogCollection.doc(item._id).remove()
+      })
+    })
   })
   return res
-  // const dates = generateDates(order)
-  // await Promise.all(dates.map(date => {
-  //   return resourceLogCollection.add({
-  //     data: {
-  //       user: user.username,
-  //       name: order.name,
-  //       date,
-  //       number
-  //     }
-  //   })
-  // })).then(resArr => {
-  //   return orderLogCollection.add({
-  //     data: {
-  //       user: user.username,
-  //       resource: order.name,
-  //       detail: order,
-  //       status: 'rend'
-  //     }
-  //   })
-  // }).catch(err => {
-  //   res = false
-  //   // 回滚
-  //   console.log('roll back', err)
-  //   dates.forEach(date => {
-  //     resourceLogCollection.where({
-  //       name: order.name,
-  //       date,
-  //       number
-  //     }).remove()
-  //   })
-  //   orderLogCollection.where({
-  //     user: user.username,
-  //     resource: order.name,
-  //     detail: order,
-  //     status: 'rend'
-  //   }).remove()
-  // })
-  // return res
 }
 
+// 生成startDate到endDate的数组
 function generateDates(order) {
   const { startDate, endDate } = order
   const dates = []

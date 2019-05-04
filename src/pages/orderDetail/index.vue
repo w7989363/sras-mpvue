@@ -143,7 +143,7 @@ export default {
         data: {
           user: this.order.user,
           admin: this.user.username,
-          score: this.score,
+          score: parseInt(this.score),
           comment: this.comment,
           orderID: this.order._id
         },

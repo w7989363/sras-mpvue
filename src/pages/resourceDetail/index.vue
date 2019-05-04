@@ -199,7 +199,7 @@ export default {
         this.btnName = '修改订单'
         this.startDate = data.startDate > tomorrow ? data.startDate : tomorrow
         this.endDate = data.endDate > tomorrow ? data.endDate : tomorrow
-        this.number = data.number
+        this.number = parseInt(data.number)
         Object.assign(this.auxiliaryDevices, data.auxiliaryDevices)
         Object.assign(this.livingMaterials, data.livingMaterials)
         Object.assign(this.stationery, data.stationery)
@@ -212,7 +212,7 @@ export default {
         name: this.name,
         startDate: this.startDate,
         endDate: this.endDate,
-        number: this.number,
+        number: parseInt(this.number)
       }
       if (this.otherShow) {
         // data.auxiliaryDevices = this.convert2array(this.auxiliaryDevices),

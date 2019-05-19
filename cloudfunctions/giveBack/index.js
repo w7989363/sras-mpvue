@@ -9,7 +9,7 @@ exports.main = async (event, context) => {
   const ret = {}
   const { user, admin, score, orderID, comment } = event
   console.log(event)
-  if (!user || !admin || !score || !orderID) {
+  if (!user || !admin || score === undefined || !orderID) {
     return {
       status_code: 1,
       err_msg: 'params err'

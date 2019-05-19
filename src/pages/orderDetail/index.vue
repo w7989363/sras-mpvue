@@ -51,14 +51,14 @@
         </div>
         <div class="form-item">
           <div class="label">打分(-10~10)</div>
-          <div class="content" v-if="order.score">{{order.score}}</div>
+          <div class="content" v-if="order.status === 'over'">{{order.score}}</div>
           <div class="content" v-else>
             <input class="score-input" v-model="score" />
           </div>
         </div>
         <div class="form-item">
           <div class="label">备注</div>
-          <div class="content" v-if="order.comment">{{order.comment}}</div>
+          <div class="content" v-if="order.status === 'over'">{{order.comment}}</div>
           <div class="content" v-else>
             <textarea class="comment-input" v-model="comment" placeholder="评分理由" />
           </div>

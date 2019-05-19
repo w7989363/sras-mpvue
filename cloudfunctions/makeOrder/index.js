@@ -49,7 +49,10 @@ async function makeOrderLog(user, order) {
     data: {
       user: user.username,
       resource: order.name,
-      detail: order,
+      detail: {
+        ...order,
+        number
+      },
       status: 'rend'
     }
   }).then(res => {

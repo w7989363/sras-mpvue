@@ -36,7 +36,7 @@
           <div class="content">{{order.admin}}</div>
         </div>
         <div class="form-item" v-if="order.score">
-          <div class="label">评分(0~10)</div>
+          <div class="label">打分(-10~10)</div>
           <div class="content">{{order.score}}</div>
         </div>
         <div class="form-item" v-if="order.comment">
@@ -50,10 +50,10 @@
           <div class="content">{{order.admin}}</div>
         </div>
         <div class="form-item">
-          <div class="label">评分(0~10)</div>
+          <div class="label">打分(-10~10)</div>
           <div class="content" v-if="order.score">{{order.score}}</div>
           <div class="content" v-else>
-            <input class="score-input" type="number" v-model="score" />
+            <input class="score-input" v-model="score" />
           </div>
         </div>
         <div class="form-item">
@@ -122,9 +122,9 @@ export default {
       return this.user.userType === 'admin' && this.order.status === 'rend'
     },
     btnDisabled() {
-      if (this.score === '') return true
+      if (this.score === '' || isNaN(this.score)) return true
       const score = parseInt(this.score)
-      if (score >= 0 && score <= 10) return false
+      if (score >= -10 && score <= 10) return false
       return true
     }
   },

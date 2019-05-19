@@ -29,7 +29,8 @@ exports.main = async (event, context) => {
       username,
       password,
       tel,
-      userType
+      userType,
+      score: 10
     }
   }).catch(err => {
     console.log('新增失败', err)

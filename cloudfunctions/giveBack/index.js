@@ -32,8 +32,11 @@ exports.main = async (event, context) => {
       ret.status_code = 2
       ret.err_msg = 'user err'
     }
+    let newScore = parseInt(data[0].score) + parseInt(score)
+    if (newScore < 0) newScore = 0
+    if (newScore > 10) newScore = 10
     return userCollection.doc(data[0]._id).update({
-      data: { score: parseInt(score) }
+      data: { score: parseInt(newScore) }
     })
   })
   .then(res => {

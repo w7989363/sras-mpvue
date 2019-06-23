@@ -3,8 +3,8 @@
     <h2 class="header">搜索</h2>
     <div class="form-container">
       <icon-input icon="search" circular placeholder="搜索" v-model="searchText"></icon-input>
-      <button class="btn" type="primary" @click="resourceList('static')">固定设备</button>
-      <button class="btn" type="primary" @click="resourceList('mobile')">移动设备</button>
+      <button class="btn" type="primary" @click="resourceList('static')">本地设备</button>
+      <button class="btn" type="primary" @click="resourceList('mobile')">可移动设备</button>
     </div>
     <FixedUser />
   </div>

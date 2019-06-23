@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <h2 class="header">{{class1 === 'static' ? '固定设备' : '移动设备'}}</h2>
+    <h2 class="header">{{class1 === 'static' ? '本地设备' : '可移动设备'}}</h2>
     <div class="form-container">
       <ResourceItem
         v-for="resource in resourceList"
